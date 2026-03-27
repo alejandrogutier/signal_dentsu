@@ -15,7 +15,16 @@ const schema = z.object({
   limit: z.number().default(50),
 });
 
-/** GET /api/semrush/domain — Full domain overview */
+/** Wrap a promise so it returns null on error instead of rejecting */
+async function safe<T>(p: Promise<T>): Promise<T | null> {
+  try {
+    return await p;
+  } catch (err) {
+    console.warn("[semrush/domain] Non-fatal error:", err instanceof Error ? err.message : err);
+    return null;
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -23,24 +32,24 @@ export async function POST(request: Request) {
     const db = database as Database;
 
     const [rank, keywords, aiKeywords, backlinks, history] = await Promise.all([
-      getDomainRank(domain, db),
-      getDomainOrganic(domain, db, limit),
-      getDomainAiOverviewKeywords(domain, db, 20),
-      getBacklinksOverview(domain),
-      getDomainRankHistory(domain, db),
+      safe(getDomainRank(domain, db)),
+      safe(getDomainOrganic(domain, db, limit)),
+      safe(getDomainAiOverviewKeywords(domain, db, 20)),
+      safe(getBacklinksOverview(domain)),
+      safe(getDomainRankHistory(domain, db)),
     ]);
 
     return NextResponse.json({
       domain,
       rank,
-      keywords,
-      aiOverviewKeywords: aiKeywords,
+      keywords: keywords ?? [],
+      aiOverviewKeywords: aiKeywords ?? [],
       backlinks,
-      history,
+      history: history ?? [],
       summary: {
         organicKeywords: rank?.organicKeywords ?? 0,
         organicTraffic: rank?.organicTraffic ?? 0,
-        aiOverviewCount: aiKeywords.length,
+        aiOverviewCount: aiKeywords?.length ?? 0,
         totalBacklinks: backlinks?.total ?? 0,
         referringDomains: backlinks?.domainsNum ?? 0,
       },
