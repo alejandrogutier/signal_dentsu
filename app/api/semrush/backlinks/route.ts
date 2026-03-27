@@ -6,10 +6,15 @@ const schema = z.object({
   domain: z.string().min(1),
 });
 
+function cleanDomain(input: string): string {
+  return input.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/+$/, "").trim();
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { domain } = schema.parse(body);
+    const parsed = schema.parse(body);
+    const domain = cleanDomain(parsed.domain);
 
     const overview = await getBacklinksOverview(domain);
 

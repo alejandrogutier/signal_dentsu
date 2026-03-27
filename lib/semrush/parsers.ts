@@ -1,18 +1,68 @@
 /**
  * SEMRush API returns CSV/TSV data. These parsers convert to typed JSON.
+ *
+ * IMPORTANT: SEMRush returns full header names ("Keyword", "Position", etc.)
+ * even when you request columns by code ("Ph", "Po", etc.).
+ * We normalize all headers to short codes so the rest of the codebase can
+ * use `r.Ph`, `r.Po`, `r.Nq`, etc. consistently.
  */
 
-/** Parse SEMRush CSV response into array of objects */
+/** Reverse mapping: SEMRush full header name → short column code */
+const HEADER_TO_CODE: Record<string, string> = {
+  // Domain organic / keyword fields
+  "Keyword": "Ph",
+  "Position": "Po",
+  "Previous Position": "Pp",
+  "Search Volume": "Nq",
+  "CPC": "Cp",
+  "Competition": "Co",
+  "Traffic (%)": "Tr",
+  "Traffic Cost (%)": "Tc",
+  "Number of Results": "Nr",
+  "Trends": "Td",
+  "SERP Features by Position": "Fp",
+  "Keyword Difficulty Index": "Kd",
+  "Keyword Difficulty": "Kd",
+
+  // Domain rank fields
+  "Domain": "Dn",
+  "Rank": "Rk",
+  "Organic Keywords": "Or",
+  "Organic Traffic": "Ot",
+  "Organic Cost": "Oc",
+  "Adwords Keywords": "Ad",
+  "Adwords Traffic": "At",
+  "Adwords Cost": "Ac",
+  "Date": "Dt",
+
+  // Competitor fields
+  "Competitor Relevance": "Cr",
+  "Common Keywords": "Np",
+
+  // URL field
+  "Url": "Ur",
+  "URL": "Ur",
+};
+
+/** Parse SEMRush CSV response into array of objects keyed by short codes */
 export function parseCsv(csv: string): Record<string, string>[] {
   const lines = csv.trim().split("\n");
   if (lines.length < 2) return [];
 
-  const headers = lines[0].split(";");
+  const rawHeaders = lines[0].split(";");
+
+  // Normalize headers: if they are full names, convert to codes.
+  // If they are already codes (Ph, Po, etc.), keep them as is.
+  const headers = rawHeaders.map((h) => {
+    const trimmed = h.trim();
+    return HEADER_TO_CODE[trimmed] ?? trimmed;
+  });
+
   return lines.slice(1).map((line) => {
     const values = line.split(";");
     const row: Record<string, string> = {};
     headers.forEach((header, i) => {
-      row[header.trim()] = values[i]?.trim() ?? "";
+      row[header] = values[i]?.trim() ?? "";
     });
     return row;
   });

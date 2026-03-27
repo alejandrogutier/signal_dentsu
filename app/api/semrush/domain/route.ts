@@ -15,6 +15,15 @@ const schema = z.object({
   limit: z.number().default(50),
 });
 
+/** Strip protocol, www, and trailing slashes from a domain input */
+function cleanDomain(input: string): string {
+  return input
+    .replace(/^https?:\/\//, "")
+    .replace(/^www\./, "")
+    .replace(/\/+$/, "")
+    .trim();
+}
+
 /** Wrap a promise so it returns null on error instead of rejecting */
 async function safe<T>(label: string, p: Promise<T>): Promise<T | null> {
   try {
@@ -31,8 +40,10 @@ async function safe<T>(label: string, p: Promise<T>): Promise<T | null> {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { domain, database, limit } = schema.parse(body);
-    const db = database as Database;
+    const parsed = schema.parse(body);
+    const domain = cleanDomain(parsed.domain);
+    const db = parsed.database as Database;
+    const limit = parsed.limit;
 
     console.log(`[semrush/domain] Analyzing domain=${domain} db=${db} limit=${limit}`);
 

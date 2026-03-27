@@ -9,11 +9,17 @@ const schema = z.object({
   limit: z.number().default(20),
 });
 
+function cleanDomain(input: string): string {
+  return input.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/+$/, "").trim();
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { domain, database, limit } = schema.parse(body);
-    const db = database as Database;
+    const parsed = schema.parse(body);
+    const domain = cleanDomain(parsed.domain);
+    const db = parsed.database as Database;
+    const limit = parsed.limit;
 
     const competitors = await getOrganicCompetitors(domain, db, limit);
 
