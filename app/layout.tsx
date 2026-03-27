@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
-import { ConfigProvider, theme } from "antd";
+import ThemeProvider from "@/components/theme-provider";
 import "./globals.css";
 
 const inter = Inter({
@@ -30,24 +30,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
         <AntdRegistry>
-          <ConfigProvider
-            theme={{
-              algorithm: theme.darkAlgorithm,
-              token: {
-                colorPrimary: "#3b82f6",
-                colorBgBase: "#0b1121",
-                colorBgContainer: "#111827",
-                colorBgElevated: "#1e293b",
-                colorBorder: "#1e293b",
-                colorText: "#e2e8f0",
-                colorTextSecondary: "#94a3b8",
-                borderRadius: 8,
-                fontFamily: "var(--font-inter), Inter, system-ui, sans-serif",
-              },
-            }}
-          >
+          <ThemeProvider>
             {children}
-          </ConfigProvider>
+          </ThemeProvider>
         </AntdRegistry>
       </body>
     </html>
