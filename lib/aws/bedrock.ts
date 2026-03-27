@@ -11,7 +11,11 @@ import {
 } from "@aws-sdk/client-bedrock-runtime";
 
 const client = new BedrockRuntimeClient({
-  region: process.env.AWS_REGION ?? "us-east-1",
+  region: process.env.APP_AWS_REGION ?? "us-east-1",
+  credentials: {
+    accessKeyId: process.env.APP_AWS_ACCESS_KEY_ID ?? "",
+    secretAccessKey: process.env.APP_AWS_SECRET_ACCESS_KEY ?? "",
+  },
 });
 
 const MODEL_ID = process.env.BEDROCK_MODEL_ID ?? "anthropic.claude-sonnet-4-20250514";
