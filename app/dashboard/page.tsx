@@ -13,6 +13,7 @@ import {
   Table,
   Tag,
   Spin,
+  Select,
   message,
 } from "antd";
 import {
@@ -53,6 +54,7 @@ interface DomainData {
 
 export default function DashboardOverview() {
   const [domain, setDomain] = useState("");
+  const [database, setDatabase] = useState("us");
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<DomainData | null>(null);
 
@@ -63,7 +65,7 @@ export default function DashboardOverview() {
       const res = await fetch("/api/semrush/domain", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ domain: domain.trim(), limit: 30 }),
+        body: JSON.stringify({ domain: domain.trim(), database, limit: 50 }),
       });
       const json = await res.json();
       if (json.error) throw new Error(json.error);
@@ -137,14 +139,35 @@ export default function DashboardOverview() {
         <Title level={4} style={{ color: "#e2e8f0", marginBottom: 16 }}>
           Domain Overview
         </Title>
-        <Space.Compact style={{ width: "100%", maxWidth: 600 }}>
+        <Space wrap>
           <Input
-            placeholder="Enter domain (e.g. semrush.com)"
+            placeholder="Enter domain (e.g. mitosdecolombia.com)"
             value={domain}
             onChange={(e) => setDomain(e.target.value)}
             onPressEnter={fetchDomain}
             prefix={<GlobalOutlined style={{ color: "#64748b" }} />}
             size="large"
+            style={{ width: 400 }}
+          />
+          <Select
+            value={database}
+            onChange={setDatabase}
+            size="large"
+            style={{ width: 160 }}
+            options={[
+              { value: "us", label: "🇺🇸 United States" },
+              { value: "uk", label: "🇬🇧 United Kingdom" },
+              { value: "mx", label: "🇲🇽 Mexico" },
+              { value: "es", label: "🇪🇸 Spain" },
+              { value: "br", label: "🇧🇷 Brazil" },
+              { value: "co", label: "🇨🇴 Colombia" },
+              { value: "ar", label: "🇦🇷 Argentina" },
+              { value: "cl", label: "🇨🇱 Chile" },
+              { value: "ca", label: "🇨🇦 Canada" },
+              { value: "de", label: "🇩🇪 Germany" },
+              { value: "fr", label: "🇫🇷 France" },
+              { value: "it", label: "🇮🇹 Italy" },
+            ]}
           />
           <Button
             type="primary"
@@ -155,7 +178,7 @@ export default function DashboardOverview() {
           >
             Analyze
           </Button>
-        </Space.Compact>
+        </Space>
       </div>
 
       {loading && (

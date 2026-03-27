@@ -134,12 +134,18 @@ export default function KeywordsPage() {
             onChange={setDatabase}
             style={{ width: 120 }}
             options={[
-              { value: "us", label: "US" },
-              { value: "uk", label: "UK" },
-              { value: "mx", label: "Mexico" },
-              { value: "es", label: "Spain" },
-              { value: "br", label: "Brazil" },
-              { value: "co", label: "Colombia" },
+              { value: "us", label: "🇺🇸 United States" },
+              { value: "uk", label: "🇬🇧 United Kingdom" },
+              { value: "mx", label: "🇲🇽 Mexico" },
+              { value: "es", label: "🇪🇸 Spain" },
+              { value: "br", label: "🇧🇷 Brazil" },
+              { value: "co", label: "🇨🇴 Colombia" },
+              { value: "ar", label: "🇦🇷 Argentina" },
+              { value: "cl", label: "🇨🇱 Chile" },
+              { value: "ca", label: "🇨🇦 Canada" },
+              { value: "de", label: "🇩🇪 Germany" },
+              { value: "fr", label: "🇫🇷 France" },
+              { value: "it", label: "🇮🇹 Italy" },
             ]}
           />
           <Button type="primary" icon={<SearchOutlined />} onClick={fetchAll} loading={loading}>

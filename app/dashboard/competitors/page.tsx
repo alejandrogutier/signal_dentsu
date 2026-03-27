@@ -9,6 +9,7 @@ import {
   Typography,
   Space,
   Spin,
+  Select,
   message,
   Progress,
 } from "antd";
@@ -27,6 +28,7 @@ interface Competitor {
 
 export default function CompetitorsPage() {
   const [domain, setDomain] = useState("");
+  const [database, setDatabase] = useState("us");
   const [loading, setLoading] = useState(false);
   const [competitors, setCompetitors] = useState<Competitor[]>([]);
 
@@ -37,7 +39,7 @@ export default function CompetitorsPage() {
       const res = await fetch("/api/semrush/competitors", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ domain: domain.trim(), limit: 30 }),
+        body: JSON.stringify({ domain: domain.trim(), database, limit: 30 }),
       });
       const json = await res.json();
       if (json.error) throw new Error(json.error);
@@ -113,18 +115,34 @@ export default function CompetitorsPage() {
       </Title>
 
       <Card size="small" style={{ marginBottom: 16 }}>
-        <Space.Compact style={{ width: "100%", maxWidth: 500 }}>
+        <Space wrap>
           <Input
             placeholder="Enter your domain"
             value={domain}
             onChange={(e) => setDomain(e.target.value)}
             onPressEnter={fetchCompetitors}
             prefix={<GlobalOutlined style={{ color: "#64748b" }} />}
+            style={{ width: 350 }}
+          />
+          <Select
+            value={database}
+            onChange={setDatabase}
+            style={{ width: 160 }}
+            options={[
+              { value: "us", label: "🇺🇸 United States" },
+              { value: "uk", label: "🇬🇧 United Kingdom" },
+              { value: "mx", label: "🇲🇽 Mexico" },
+              { value: "es", label: "🇪🇸 Spain" },
+              { value: "br", label: "🇧🇷 Brazil" },
+              { value: "co", label: "🇨🇴 Colombia" },
+              { value: "ar", label: "🇦🇷 Argentina" },
+              { value: "cl", label: "🇨🇱 Chile" },
+            ]}
           />
           <Button type="primary" icon={<SearchOutlined />} onClick={fetchCompetitors} loading={loading}>
             Find Competitors
           </Button>
-        </Space.Compact>
+        </Space>
       </Card>
 
       {loading && (

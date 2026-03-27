@@ -7,7 +7,7 @@
  * Response format: CSV (semicolon-delimited)
  */
 
-import { SEMRUSH_BASE_URL, EXPORT_COLUMNS, type Database } from "./constants";
+import { SEMRUSH_BASE_URL, SEMRUSH_BACKLINKS_URL, EXPORT_COLUMNS, type Database } from "./constants";
 import { parseCsv, num, int, parseTrends, parseSerpFeatures } from "./parsers";
 import type {
   OrganicKeyword,
@@ -39,19 +39,22 @@ function setCache(key: string, data: unknown): void {
 }
 
 /** Core fetch function for SEMRush API */
-async function semrushFetch(params: Record<string, string>): Promise<string> {
+async function semrushFetch(params: Record<string, string>, baseUrl = SEMRUSH_BASE_URL): Promise<string> {
   if (!API_KEY) throw new Error("SEMRUSH_API_KEY not configured");
 
   const searchParams = new URLSearchParams({ ...params, key: API_KEY });
-  const url = `${SEMRUSH_BASE_URL}?${searchParams}`;
+  const url = `${baseUrl}?${searchParams}`;
 
   const cacheKey = url.replace(API_KEY, "***");
   const cached = getCached<string>(cacheKey);
   if (cached) return cached;
 
+  console.log(`[semrush] Fetching: ${cacheKey}`);
+
   const res = await fetch(url);
   if (!res.ok) {
     const text = await res.text();
+    console.error(`[semrush] HTTP error ${res.status}: ${text}`);
     throw new Error(`SEMRush API error (${res.status}): ${text}`);
   }
 
@@ -59,9 +62,11 @@ async function semrushFetch(params: Record<string, string>): Promise<string> {
 
   // SEMRush returns "ERROR X :: message" for errors
   if (text.startsWith("ERROR")) {
+    console.warn(`[semrush] API returned: ${text}`);
     throw new Error(`SEMRush: ${text}`);
   }
 
+  console.log(`[semrush] Response lines: ${text.trim().split("\n").length}`);
   setCache(cacheKey, text);
   return text;
 }
@@ -319,12 +324,15 @@ export async function getOrganicCompetitors(
 export async function getBacklinksOverview(
   domain: string
 ): Promise<BacklinksOverview | null> {
-  const csv = await semrushFetch({
-    type: "backlinks_overview",
-    target: domain,
-    target_type: "root_domain",
-    export_columns: EXPORT_COLUMNS.backlinksOverview,
-  });
+  const csv = await semrushFetch(
+    {
+      type: "backlinks_overview",
+      target: domain,
+      target_type: "root_domain",
+      export_columns: EXPORT_COLUMNS.backlinksOverview,
+    },
+    SEMRUSH_BACKLINKS_URL
+  );
   const rows = parseCsv(csv);
   if (!rows[0]) return null;
 

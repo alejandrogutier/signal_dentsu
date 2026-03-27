@@ -1,6 +1,7 @@
 /** SEMRush API constants */
 
 export const SEMRUSH_BASE_URL = "https://api.semrush.com/";
+export const SEMRUSH_BACKLINKS_URL = "https://api.semrush.com/analytics/v1/";
 export const SEMRUSH_TRENDS_URL = "https://api.semrush.com/analytics/ta/api/v3/";
 
 /** Regional databases available in SEMRush */

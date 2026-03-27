@@ -13,6 +13,7 @@ import {
   Col,
   Statistic,
   Spin,
+  Select,
   message,
 } from "antd";
 import {
@@ -49,6 +50,7 @@ interface SerpData {
 
 export default function AiVisibilityPage() {
   const [domain, setDomain] = useState("");
+  const [database, setDatabase] = useState("us");
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<SerpData | null>(null);
 
@@ -59,7 +61,7 @@ export default function AiVisibilityPage() {
       const res = await fetch("/api/semrush/serp-features", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ domain: domain.trim(), limit: 200 }),
+        body: JSON.stringify({ domain: domain.trim(), database, limit: 200 }),
       });
       const json = await res.json();
       if (json.error) throw new Error(json.error);
@@ -107,18 +109,34 @@ export default function AiVisibilityPage() {
       </Title>
 
       <Card size="small" style={{ marginBottom: 16 }}>
-        <Space.Compact style={{ width: "100%", maxWidth: 500 }}>
+        <Space wrap>
           <Input
             placeholder="Enter domain"
             value={domain}
             onChange={(e) => setDomain(e.target.value)}
             onPressEnter={fetchData}
             prefix={<GlobalOutlined style={{ color: "#64748b" }} />}
+            style={{ width: 350 }}
+          />
+          <Select
+            value={database}
+            onChange={setDatabase}
+            style={{ width: 160 }}
+            options={[
+              { value: "us", label: "🇺🇸 United States" },
+              { value: "uk", label: "🇬🇧 United Kingdom" },
+              { value: "mx", label: "🇲🇽 Mexico" },
+              { value: "es", label: "🇪🇸 Spain" },
+              { value: "br", label: "🇧🇷 Brazil" },
+              { value: "co", label: "🇨🇴 Colombia" },
+              { value: "ar", label: "🇦🇷 Argentina" },
+              { value: "cl", label: "🇨🇱 Chile" },
+            ]}
           />
           <Button type="primary" icon={<SearchOutlined />} onClick={fetchData} loading={loading}>
             Analyze AI Visibility
           </Button>
-        </Space.Compact>
+        </Space>
       </Card>
 
       {loading && (

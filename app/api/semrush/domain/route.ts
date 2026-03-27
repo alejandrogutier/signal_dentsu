@@ -16,11 +16,14 @@ const schema = z.object({
 });
 
 /** Wrap a promise so it returns null on error instead of rejecting */
-async function safe<T>(p: Promise<T>): Promise<T | null> {
+async function safe<T>(label: string, p: Promise<T>): Promise<T | null> {
   try {
     return await p;
   } catch (err) {
-    console.warn("[semrush/domain] Non-fatal error:", err instanceof Error ? err.message : err);
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(`[semrush/domain] ${label} failed: ${msg}`);
+    // If it's "NOTHING FOUND" that's expected for some databases - return null
+    // For other errors, still log but don't crash
     return null;
   }
 }
@@ -31,13 +34,17 @@ export async function POST(request: Request) {
     const { domain, database, limit } = schema.parse(body);
     const db = database as Database;
 
+    console.log(`[semrush/domain] Analyzing domain=${domain} db=${db} limit=${limit}`);
+
     const [rank, keywords, aiKeywords, backlinks, history] = await Promise.all([
-      safe(getDomainRank(domain, db)),
-      safe(getDomainOrganic(domain, db, limit)),
-      safe(getDomainAiOverviewKeywords(domain, db, 20)),
-      safe(getBacklinksOverview(domain)),
-      safe(getDomainRankHistory(domain, db)),
+      safe("getDomainRank", getDomainRank(domain, db)),
+      safe("getDomainOrganic", getDomainOrganic(domain, db, limit)),
+      safe("getDomainAiOverviewKeywords", getDomainAiOverviewKeywords(domain, db, 20)),
+      safe("getBacklinksOverview", getBacklinksOverview(domain)),
+      safe("getDomainRankHistory", getDomainRankHistory(domain, db)),
     ]);
+
+    console.log(`[semrush/domain] Results: rank=${!!rank} keywords=${keywords?.length ?? 0} ai=${aiKeywords?.length ?? 0} backlinks=${!!backlinks} history=${history?.length ?? 0}`);
 
     return NextResponse.json({
       domain,
