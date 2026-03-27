@@ -1,19 +1,22 @@
 {
-  "name": "llm-tracker",
-  "version": "1.0.0",
+  "name": "signal-dentsu",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "test:scraper": "node --env-file=.env scripts/test-scraper.js",
-    "test:pillar": "node scripts/test-pillar.js"
+    "lint": "eslint"
   },
   "dependencies": {
-    "@google/genai": "^1.44.0",
-    "idb-keyval": "^6.2.2",
+    "@ant-design/cssinjs": "^1.23.0",
+    "@ant-design/icons": "^5.6.1",
+    "@ant-design/nextjs-registry": "^1.0.2",
+    "@aws-sdk/client-bedrock-runtime": "^3.750.0",
+    "antd": "^5.24.0",
+    "jose": "^6.0.11",
     "next": "16.1.6",
+    "pg": "^8.13.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "recharts": "^3.7.0",
@@ -22,6 +25,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pg": "^8.11.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

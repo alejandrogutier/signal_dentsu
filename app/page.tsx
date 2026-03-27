@@ -1,7 +1,5 @@
-import { SovereignDashboard } from "@/components/sovereign-dashboard";
-
-const isDemoOnly = (process.env.NEXT_PUBLIC_DEMO_ONLY ?? "").trim().toLowerCase() === "true";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return <SovereignDashboard demoMode={isDemoOnly} />;
+  redirect("/dashboard");
 }

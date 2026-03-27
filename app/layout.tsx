@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
+import { ConfigProvider, theme } from "antd";
 import "./globals.css";
 
 const inter = Inter({
@@ -15,12 +17,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GEO/AEO Tracker",
-  description: "BYOK AEO/GEO intelligence dashboard with local-first persistence",
+  title: "Signal Dentsu — GEO/AEO Tracker",
+  description: "AI Visibility & SEO Intelligence Dashboard powered by SEMRush",
 };
-
-/** Inline script to apply theme before first paint — prevents flash */
-const themeScript = `(function(){try{var t=localStorage.getItem('sovereign-theme');if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()`;
 
 export default function RootLayout({
   children,
@@ -28,15 +27,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
-      <body
-        suppressHydrationWarning
-        className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
-      >
-        {children}
+    <html lang="en">
+      <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
+        <AntdRegistry>
+          <ConfigProvider
+            theme={{
+              algorithm: theme.darkAlgorithm,
+              token: {
+                colorPrimary: "#3b82f6",
+                colorBgBase: "#0b1121",
+                colorBgContainer: "#111827",
+                colorBgElevated: "#1e293b",
+                colorBorder: "#1e293b",
+                colorText: "#e2e8f0",
+                colorTextSecondary: "#94a3b8",
+                borderRadius: 8,
+                fontFamily: "var(--font-inter), Inter, system-ui, sans-serif",
+              },
+            }}
+          >
+            {children}
+          </ConfigProvider>
+        </AntdRegistry>
       </body>
     </html>
   );
